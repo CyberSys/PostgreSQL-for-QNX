@@ -72,6 +72,7 @@ dragonfly*) template=netbsd ;;
      sco*) template=sco ;;
  solaris*) template=solaris ;;
    sysv5*) template=unixware ;;
+ nto-qnx*) template=nto-qnx ;;
 esac
 
   if test x"$template" = x"" ; then
@@ -1937,7 +1938,8 @@ if test "$PORTNAME" != "win32"; then
     AC_DEFINE(USE_NAMED_POSIX_SEMAPHORES, 1, [Define to select named POSIX semaphores.])
     SEMA_IMPLEMENTATION="src/backend/port/posix_sema.c"
   else
-    if test x"$USE_UNNAMED_POSIX_SEMAPHORES" = x"1" ; then
+    if test x"$USE_UNNAMED_POSIX_SEMAPHORES" = x"1" || \
+       test "$PORTNAME" == "nto-qnx" ; then
       AC_DEFINE(USE_UNNAMED_POSIX_SEMAPHORES, 1, [Define to select unnamed POSIX semaphores.])
       SEMA_IMPLEMENTATION="src/backend/port/posix_sema.c"
     else
@@ -1953,8 +1955,13 @@ fi
 
 # Select shared-memory implementation type.
 if test "$PORTNAME" != "win32"; then
-  AC_DEFINE(USE_SYSV_SHARED_MEMORY, 1, [Define to select SysV-style shared memory.])
-  SHMEM_IMPLEMENTATION="src/backend/port/sysv_shmem.c"
+  if test "$PORTNAME" == "nto-qnx"; then
+    AC_DEFINE(USE_NTO_SHARED_MEMORY, 1, [Define to select QNX Neutrino-style shared memory.])
+    SHMEM_IMPLEMENTATION="src/backend/port/nto_shmem.c"
+  else
+    AC_DEFINE(USE_SYSV_SHARED_MEMORY, 1, [Define to select SysV-style shared memory.])
+    SHMEM_IMPLEMENTATION="src/backend/port/sysv_shmem.c"
+  fi
 else
   AC_DEFINE(USE_WIN32_SHARED_MEMORY, 1, [Define to select Win32-style shared memory.])
   SHMEM_IMPLEMENTATION="src/backend/port/win32_shmem.c"

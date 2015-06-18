@@ -275,6 +275,15 @@ ifeq ($(PORTNAME), win32)
   haslibarule   = yes
 endif
 
+ifeq ($(PORTNAME), nto-qnx)
+  ifdef SO_MAJOR_VERSION
+    shlib = lib$(NAME)$(DLSUFFIX).$(SO_MAJOR_VERSION)
+  endif
+  LINK.shared = $(COMPILER) -shared
+  ifdef soname
+    LINK.shared += -Wl,-x,-soname,$(soname)
+  endif
+endif
 
 
 ##
